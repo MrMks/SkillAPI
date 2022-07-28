@@ -20,6 +20,7 @@ import java.util.List;
 public class WorldGuardHook {
 
     private static Method regionMethod;
+    private static boolean directAPI = true;
 
     /**
      * Fetches the list of region IDs applicable to a given location
@@ -28,21 +29,24 @@ public class WorldGuardHook {
      * @return region IDs for the location
      */
     public static List<String> getRegionIds(final Location loc) {
-        try {
-            return WorldGuard.getInstance()
-                    .getPlatform()
-                    .getRegionContainer()
-                    .get(BukkitAdapter.adapt(loc.getWorld()))
-                    .getApplicableRegionsIDs(asVector(loc));
-        } catch (NoClassDefFoundError ex) {
+        if (directAPI) {
             try {
-                final WorldGuardPlugin plugin = SkillAPI.getPlugin(WorldGuardPlugin.class);
-                return ((RegionManager) getRegionMethod().invoke(plugin, loc.getWorld()))
+                return WorldGuard.getInstance()
+                        .getPlatform()
+                        .getRegionContainer()
+                        .get(BukkitAdapter.adapt(loc.getWorld()))
                         .getApplicableRegionsIDs(asVector(loc));
-            } catch (final Exception e) {
-                // Cannot handle world guard
-                return ImmutableList.of();
+            } catch (NoClassDefFoundError ex) {
+                directAPI = false;
             }
+        }
+        try {
+            final WorldGuardPlugin plugin = SkillAPI.getPlugin(WorldGuardPlugin.class);
+            return ((RegionManager) getRegionMethod().invoke(plugin, loc.getWorld()))
+                    .getApplicableRegionsIDs(asVector(loc));
+        } catch (final Exception e) {
+            // Cannot handle world guard
+            return ImmutableList.of();
         }
     }
 

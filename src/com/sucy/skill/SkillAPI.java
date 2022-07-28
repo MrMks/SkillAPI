@@ -29,6 +29,8 @@ import com.rit.sucy.config.CommentedLanguageConfig;
 import com.rit.sucy.version.VersionManager;
 import com.rit.sucy.version.VersionPlayer;
 import com.sucy.skill.api.classes.RPGClass;
+import com.sucy.skill.api.event.PluginReloadFinishEvent;
+import com.sucy.skill.api.event.PluginReloadStartEvent;
 import com.sucy.skill.api.particle.EffectManager;
 import com.sucy.skill.api.particle.Particle;
 import com.sucy.skill.api.player.PlayerAccounts;
@@ -764,7 +766,9 @@ public class SkillAPI extends JavaPlugin {
      */
     public static void reload() {
         SkillAPI inst = singleton();
+        Bukkit.getPluginManager().callEvent(new PluginReloadStartEvent());
         inst.onDisable();
         inst.onEnable();
+        Bukkit.getPluginManager().callEvent(new PluginReloadFinishEvent());
     }
 }
