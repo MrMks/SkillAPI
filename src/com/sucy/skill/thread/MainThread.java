@@ -80,9 +80,15 @@ public class MainThread extends Thread {
      * Disables the main thread, stopping future runs
      */
     public void disable() {
+        enabled = false;
+        try {
+            join();
+        } catch (InterruptedException e) {
+            // since we call disable method in server thread, it
+            // should be impossible that someone interrupt our thread.
+        }
         for (IThreadTask task : tasks) { task.run(); }
         tasks.clear();
-        enabled = false;
     }
 
     /**
