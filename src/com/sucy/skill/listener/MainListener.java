@@ -150,12 +150,16 @@ public class MainListener extends SkillAPIListener
         unload(event.getPlayer());
     }
 
+    public static void unload(Player player) {
+        unload(player, true);
+    }
+
     /**
      * Unloads a player's data from the server
      *
      * @param player player to unload
      */
-    public static void unload(Player player)
+    public static void unload(Player player, boolean asyncSave)
     {
         if (CitizensHook.isNPC(player))
             return;
@@ -185,7 +189,7 @@ public class MainListener extends SkillAPIListener
             player.setMaxHealth(20);
         }
         player.setWalkSpeed(0.2f);
-        SkillAPI.unloadPlayerData(player, skipSaving);
+        if (asyncSave) SkillAPI.unloadPlayerData(player, skipSaving);
     }
 
     /**

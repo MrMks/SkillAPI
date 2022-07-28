@@ -129,12 +129,9 @@ public class SQLIO extends IOManager
     public synchronized void saveAll()
     {
         SQLConnection connection = openConnection();
-        HashMap<String, PlayerAccounts> data = SkillAPI.getPlayerAccountData();
-        ArrayList<String> keys = new ArrayList<String>(data.keySet());
-        for (String key : keys)
-        {
-            saveSingle(connection, data.get(key));
-        }
+        new ArrayList<>(SkillAPI.getPlayerAccountData().values()).stream()
+                .filter(accounts -> !accounts.isFake())
+                .forEach(accounts -> saveSingle(connection, accounts));
         connection.database.closeConnection();
     }
 

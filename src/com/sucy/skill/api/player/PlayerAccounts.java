@@ -49,6 +49,11 @@ public class PlayerAccounts {
 
     private int           active;
     private OfflinePlayer player;
+    private boolean       fake;
+
+    public PlayerAccounts(OfflinePlayer player) {
+        this(player, false);
+    }
 
     /**
      * Initializes a new container for player account data.
@@ -57,12 +62,13 @@ public class PlayerAccounts {
      *
      * @param player player to store data for
      */
-    public PlayerAccounts(OfflinePlayer player) {
+    public PlayerAccounts(OfflinePlayer player, boolean isFake) {
         this.player = player;
 
         PlayerData data = new PlayerData(player, true);
         classData.put(1, data);
         active = 1;
+        this.fake = isFake;
     }
 
     /**
@@ -226,5 +232,9 @@ public class PlayerAccounts {
                 active = event.getNewID();
             }
         }
+    }
+
+    public boolean isFake() {
+        return fake;
     }
 }

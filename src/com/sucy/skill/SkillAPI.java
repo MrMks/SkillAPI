@@ -219,6 +219,7 @@ public class SkillAPI extends JavaPlugin {
         if (singleton != this) { throw new IllegalStateException("This is not a valid, enabled SkillAPI copy!"); }
 
         disabling = true;
+        loaded = false;
 
         GUITool.cleanUp();
         EffectManager.cleanUp();
@@ -239,10 +240,13 @@ public class SkillAPI extends JavaPlugin {
 
         // Clear skill bars and stop passives before disabling
         for (Player player : VersionManager.getOnlinePlayers()) {
-            MainListener.unload(player);
+            MainListener.unload(player, false);
         }
 
         io.saveAll();
+
+        MainListener.loadingPlayers.values().forEach(BukkitTask::cancel);
+        MainListener.loadingPlayers.clear();
 
         skills.clear();
         classes.clear();
@@ -251,7 +255,6 @@ public class SkillAPI extends JavaPlugin {
         HandlerList.unregisterAll(this);
         cmd.clear();
 
-        loaded = false;
         disabling = false;
         singleton = null;
     }
@@ -486,7 +489,7 @@ public class SkillAPI extends JavaPlugin {
      * @param player player to fake data for
      */
     public static void initFakeData(final OfflinePlayer player) {
-        singleton().players.computeIfAbsent(player.getUniqueId().toString(), id -> new PlayerAccounts(player));
+        singleton().players.computeIfAbsent(player.getUniqueId().toString(), id -> new PlayerAccounts(player, true));
     }
 
     /**
