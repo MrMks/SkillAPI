@@ -76,7 +76,7 @@ public class SQLIO extends IOManager
     }
 
     @Override
-    public HashMap<String, PlayerAccounts> loadAll() {
+    public synchronized HashMap<String, PlayerAccounts> loadAll() {
         SQLConnection connection = openConnection();
 
         HashMap<String, PlayerAccounts> result = new HashMap<String, PlayerAccounts>();
@@ -90,7 +90,7 @@ public class SQLIO extends IOManager
     }
 
     @Override
-    public PlayerAccounts loadData(OfflinePlayer player)
+    public synchronized PlayerAccounts loadData(OfflinePlayer player)
     {
         if (player == null) return null;
 
@@ -118,7 +118,7 @@ public class SQLIO extends IOManager
     }
 
     @Override
-    public void saveData(PlayerAccounts data)
+    public synchronized void saveData(PlayerAccounts data)
     {
         SQLConnection connection = openConnection();
         saveSingle(connection, data);
@@ -126,7 +126,7 @@ public class SQLIO extends IOManager
     }
 
     @Override
-    public void saveAll()
+    public synchronized void saveAll()
     {
         SQLConnection connection = openConnection();
         HashMap<String, PlayerAccounts> data = SkillAPI.getPlayerAccountData();

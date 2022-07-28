@@ -54,7 +54,7 @@ public class ConfigIO extends IOManager
         super(plugin);
     }
 
-    public HashMap<String, PlayerAccounts> loadAll() {
+    public synchronized HashMap<String, PlayerAccounts> loadAll() {
         HashMap<String, PlayerAccounts> result = new HashMap<String, PlayerAccounts>();
         for (Player player : VersionManager.getOnlinePlayers()) {
             result.put(new VersionPlayer(player).getIdString(), loadData(player));
@@ -70,7 +70,7 @@ public class ConfigIO extends IOManager
      * @return loaded player data
      */
     @Override
-    public PlayerAccounts loadData(OfflinePlayer player)
+    public synchronized PlayerAccounts loadData(OfflinePlayer player)
     {
         String playerKey = new VersionPlayer(player).getIdString();
         CommentedConfig config = new CommentedConfig(api, "players/" + playerKey);
@@ -93,7 +93,7 @@ public class ConfigIO extends IOManager
      * @param data data to save to the config
      */
     @Override
-    public void saveData(PlayerAccounts data)
+    public synchronized void saveData(PlayerAccounts data)
     {
         try
         {
@@ -115,7 +115,7 @@ public class ConfigIO extends IOManager
      * Saves all player data to the config
      */
     @Override
-    public void saveAll()
+    public synchronized void saveAll()
     {
         HashMap<String, PlayerAccounts> data = SkillAPI.getPlayerAccountData();
         ArrayList<String> keys = new ArrayList<String>(data.keySet());
