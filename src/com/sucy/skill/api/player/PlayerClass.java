@@ -353,8 +353,7 @@ public class PlayerClass
                 );
             }
 
-            exp += rounded;
-            checkLevelUp();
+            checkLevelUp(exp + rounded);
         }
     }
 
@@ -398,16 +397,18 @@ public class PlayerClass
      * <p>Checks whether or not the player has leveled up based on
      * their current experience.</p>
      */
-    private void checkLevelUp()
+    private void checkLevelUp(double exps)
     {
         // Count the number of levels gained, if any
-        int levels = 0;
+        int levels = level;
         int required;
-        while (exp >= (required = classData.getRequiredExp(level + levels)) && level + levels < classData.getMaxLevel())
+        while (exps >= (required = classData.getRequiredExp(levels)) && levels < classData.getMaxLevel())
         {
-            exp -= required;
+            exps -= required;
             levels++;
         }
+
+        levels -= level;
 
         // Give the levels if applicable
         if (levels > 0)
@@ -427,6 +428,12 @@ public class PlayerClass
                     Filter.AMOUNT.setReplacement(levels + "")
                 );
             }
+        }
+
+        if (level >= classData.getMaxLevel()) {
+            exp = Math.min(getRequiredExp(), exps);
+        } else {
+            exp = exps;
         }
     }
 
