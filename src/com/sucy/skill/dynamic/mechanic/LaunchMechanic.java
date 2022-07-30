@@ -77,6 +77,8 @@ public class LaunchMechanic extends MechanicComponent {
                 dir = target.getLocation().getDirection().setY(0).normalize();
             }
 
+            if (!Double.isFinite(dir.getX()) || !Double.isFinite(dir.getY())) dir.zero();
+
             final Vector nor = dir.clone().crossProduct(up);
             dir.multiply(forward);
             dir.add(nor.multiply(right)).setY(upward);

@@ -37,7 +37,6 @@ import java.util.Objects;
 public class EntityTarget implements EffectTarget
 {
     private Entity   entity;
-    private Location loc;
 
     /**
      * @param target entity to follow
@@ -45,7 +44,6 @@ public class EntityTarget implements EffectTarget
     public EntityTarget(Entity target)
     {
         this.entity = target;
-        this.loc = target.getLocation();
     }
 
     /**
@@ -55,7 +53,7 @@ public class EntityTarget implements EffectTarget
      */
     public Location getLocation()
     {
-        return entity.getLocation(loc);
+        return entity.getLocation();
     }
 
     public Entity getEntity() {
@@ -72,13 +70,13 @@ public class EntityTarget implements EffectTarget
 
     @Override
     public int hashCode() {
-        return Objects.hash(entity, loc);
+        return entity.getUniqueId().hashCode();
     }
 
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof EntityTarget)) return false;
         final EntityTarget target = (EntityTarget)o;
-        return target.entity == entity && target.loc.equals(loc);
+        return target.entity.getUniqueId().equals(entity.getUniqueId());
     }
 }

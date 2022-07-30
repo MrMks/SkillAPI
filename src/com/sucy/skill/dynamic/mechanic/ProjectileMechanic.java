@@ -138,6 +138,7 @@ public class ProjectileMechanic extends MechanicComponent
                     Projectile p = caster.launchProjectile(type);
                     p.setVelocity(new Vector(0, speed, 0));
                     p.teleport(loc);
+                    SkillAPI.setMeta(p, MechanicListener.P_CALL, this);
                     SkillAPI.setMeta(p, LEVEL, level);
                     if (flaming) p.setFireTicks(9999);
                     projectiles.add(p);

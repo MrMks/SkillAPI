@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 public class NameCondition extends ConditionComponent {
     private static final String CONTAINS = "contains";
     private static final String REGEX    = "regex";
-    private static final String STRING   = "str";
+    private static final String STRING   = "text";
 
     @Override
     boolean test(final LivingEntity caster, final int level, final LivingEntity target) {

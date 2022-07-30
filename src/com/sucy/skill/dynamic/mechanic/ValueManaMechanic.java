@@ -65,13 +65,13 @@ public class ValueManaMechanic extends MechanicComponent
 
         switch (type) {
             case "max":
-                data.put(key, player.getMaxMana());
+                data.put(key, player.getMaxMana());break;
             case "percent":
-                data.put(key, player.getMana() / player.getMaxMana());
+                data.put(key, player.getMana() / player.getMaxMana());break;
             case "missing":
-                data.put(key, player.getMaxMana() - player.getMana());
+                data.put(key, player.getMaxMana() - player.getMana());break;
             default: // current
-                data.put(key, player.getMana());
+                data.put(key, player.getMana());break;
         }
         return true;
     }
