@@ -143,6 +143,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -180,11 +181,13 @@ public class ComponentRegistry {
 
     @SuppressWarnings("unchecked")
     public static <T extends Event> void register(final Trigger<T> trigger) {
-        if (getTrigger(trigger.getKey()) != null) {
-            throw new IllegalArgumentException("Trigger with key " + trigger.getKey() + " already exists");
-        } else if (trigger.getKey().contains("-")) {
+        if (trigger.getKey().contains("-")) {
             throw new IllegalArgumentException(trigger.getKey() + " is not a valid key: must not contain dashes");
         }
+
+        // we should not perform the same name check because the trigger may be re-registered during reload.
+        Trigger<?> old = getTrigger(trigger.getKey());
+        if (old != null) EXECUTORS.remove(old);
 
         TRIGGERS.put(trigger.getKey(), trigger);
         EXECUTORS.put(trigger, (listener, event) -> {
@@ -209,7 +212,7 @@ public class ComponentRegistry {
 
         final File file = new File(SkillAPI.getPlugin(SkillAPI.class).getDataFolder(), "tool-config.json");
         try (final FileOutputStream out = new FileOutputStream(file)) {
-            final BufferedWriter write = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+            final BufferedWriter write = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
             write.write(builder.toString());
             write.close();
         } catch (Exception var4) {

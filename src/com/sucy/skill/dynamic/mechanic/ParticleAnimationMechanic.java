@@ -159,8 +159,16 @@ public class ParticleAnimationMechanic extends MechanicComponent
         @Override
         public void run()
         {
+            if (this.life >= this.duration) {
+                cancel();
+                return;
+            }
+
             for (int i = 0; i < steps; i++)
             {
+                // Update the lifespan of the animation
+                this.life++;
+
                 // Play the effect
                 int j = 0;
                 for (LivingEntity target : targets)
@@ -173,9 +181,6 @@ public class ParticleAnimationMechanic extends MechanicComponent
                     loc.subtract(offset);
                     rotate(offset, rots[j++], -rots[j++]);
                 }
-
-                // Update the lifespan of the animation
-                this.life++;
 
                 // Apply transformations
                 rotate(offset, cos, sin);

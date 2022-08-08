@@ -237,6 +237,10 @@ public class SkillAPI extends JavaPlugin {
 
         // Clear scoreboards
         ClassBoardManager.clearAll();
+        PlayerStats.clear();
+
+        MainListener.loadingPlayers.values().forEach(BukkitTask::cancel);
+        MainListener.loadingPlayers.clear();
 
         // Clear skill bars and stop passives before disabling
         for (Player player : VersionManager.getOnlinePlayers()) {
@@ -244,9 +248,7 @@ public class SkillAPI extends JavaPlugin {
         }
 
         io.saveAll();
-
-        MainListener.loadingPlayers.values().forEach(BukkitTask::cancel);
-        MainListener.loadingPlayers.clear();
+        DynamicSkill.clearCastData();
 
         skills.clear();
         classes.clear();

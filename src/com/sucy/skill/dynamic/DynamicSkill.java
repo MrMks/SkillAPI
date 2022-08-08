@@ -179,6 +179,10 @@ public class DynamicSkill extends Skill implements SkillShot, PassiveSkill, List
         castData.remove(entity.getEntityId());
     }
 
+    public static void clearCastData() {
+        castData.clear();
+    }
+
     /**
      * Registers needed events for the skill, ignoring any unused events for efficiency
      *
