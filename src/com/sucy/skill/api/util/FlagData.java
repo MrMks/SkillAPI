@@ -42,6 +42,8 @@ import java.util.HashMap;
  */
 public class FlagData
 {
+    private static final int TASK_INTERVAL = 300;
+
     private final HashMap<String, Long>       flags = new HashMap<String, Long>();
     private final HashMap<String, BukkitTask> tasks = new HashMap<String, BukkitTask>();
     private LivingEntity entity;
@@ -83,7 +85,7 @@ public class FlagData
         if (flags.containsKey(flag))
         {
             long time = flags.get(flag);
-            if (time > ticks * 50 + System.currentTimeMillis())
+            if (time > ticks * 50L + System.currentTimeMillis())
                 return;
             else
             {
@@ -92,8 +94,8 @@ public class FlagData
                     task.cancel();
             }
         }
-        flags.put(flag, System.currentTimeMillis() + ticks * 50);
-        tasks.put(flag, new FlagTask(flag).runTaskLater(plugin, ticks));
+        flags.put(flag, System.currentTimeMillis() + ticks * 50L);
+        tasks.put(flag, new FlagTask(flag, ticks).schedule(plugin));
     }
 
     /**
@@ -191,21 +193,38 @@ public class FlagData
     private class FlagTask extends BukkitRunnable
     {
         private String flag;
+        private int left;
 
-        public FlagTask(String flag)
+        private int interval;
+
+        public FlagTask(String flag, int ticks)
         {
             this.flag = flag;
+            this.left = ticks;
+            this.interval = Math.min(ticks, TASK_INTERVAL);
         }
 
         @Override
         public void run()
         {
+            left -= interval;
+            if (left > TASK_INTERVAL) return;
+            else if (left > 0) {
+                this.cancel();
+                tasks.put(flag, new FlagTask(flag, left).schedule(plugin));
+                return;
+            }
             if (!entity.isValid() || entity.isDead())
             {
                 FlagManager.clearFlags(entity);
                 return;
             }
             removeFlag(flag, FlagExpireEvent.ExpireReason.TIME);
+            this.cancel();
+        }
+
+        public BukkitTask schedule(Plugin plugin) {
+            return runTaskTimer(plugin, interval, TASK_INTERVAL);
         }
     }
 }

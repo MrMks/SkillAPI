@@ -248,7 +248,7 @@ public class SkillAPI extends JavaPlugin {
         }
 
         io.saveAll();
-        DynamicSkill.clearCastData();
+        DynamicSkill.clearCastData(); // just in case
 
         skills.clear();
         classes.clear();
