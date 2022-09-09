@@ -97,6 +97,7 @@ public class GUITask extends RepeatThreadTask
         for (Player player : VersionManager.getOnlinePlayers())
         {
             if (!SkillAPI.getSettings().isWorldEnabled(player.getWorld())) continue;
+            if (!SkillAPI.hasPlayerData(player)) continue;
 
             PlayerData data = SkillAPI.getPlayerData(player);
 

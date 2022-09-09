@@ -63,8 +63,10 @@ public class ManaTask extends RepeatThreadTask
         Logger.log(LogType.MANA, 1, "Applying mana regen for " + players.length + " players");
         for (Player player : players)
         {
-            PlayerData data = SkillAPI.getPlayerData(player);
-            data.regenMana();
+            if (SkillAPI.hasPlayerData(player)) {
+                PlayerData data = SkillAPI.getPlayerData(player);
+                data.regenMana();
+            }
         }
     }
 }

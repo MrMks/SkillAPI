@@ -55,10 +55,12 @@ public class CooldownTask extends RepeatThreadTask
     {
         for (Player player : VersionManager.getOnlinePlayers())
         {
-            PlayerData data = SkillAPI.getPlayerData(player);
-            if (data.hasClass())
-            {
-                data.getSkillBar().updateCooldowns();
+            if (SkillAPI.hasPlayerData(player)) {
+                PlayerData data = SkillAPI.getPlayerData(player);
+                if (data.hasClass())
+                {
+                    data.getSkillBar().updateCooldowns();
+                }
             }
         }
     }
