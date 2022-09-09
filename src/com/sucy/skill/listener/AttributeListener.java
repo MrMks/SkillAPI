@@ -132,6 +132,9 @@ public class AttributeListener extends SkillAPIListener
         if (event.getPlayer().hasMetadata("NPC"))
             return;
 
+        if (!SkillAPI.hasPlayerData(event.getPlayer()))
+            return;
+
         updatePlayer(SkillAPI.getPlayerData(event.getPlayer()));
     }
 

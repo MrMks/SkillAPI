@@ -246,6 +246,9 @@ public class BarListener extends SkillAPIListener
         if (!SkillAPI.getSettings().isWorldEnabled(event.getPlayer().getWorld()))
             return;
 
+        if (!SkillAPI.hasPlayerData(event.getPlayer()))
+            return;
+
         PlayerData data = SkillAPI.getPlayerData(event.getPlayer());
         if (data.hasClass())
         {

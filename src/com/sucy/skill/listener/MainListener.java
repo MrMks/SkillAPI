@@ -72,7 +72,7 @@ public class MainListener extends SkillAPIListener
     private static final List<Consumer<Player>> JOIN_HANDLERS = new ArrayList<>();
     private static final List<Consumer<Player>> CLEAR_HANDLERS = new ArrayList<>();
 
-    public static final Map<UUID, BukkitTask> loadingPlayers = new HashMap<>();
+    public static final Map<String, BukkitTask> loadingPlayers = new HashMap<>();
 
     public static void registerJoin(final Consumer<Player> joinHandler) {
         JOIN_HANDLERS.add(joinHandler);
@@ -92,7 +92,7 @@ public class MainListener extends SkillAPIListener
      *
      * @param event event details
      */
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+//    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onLogin(AsyncPlayerPreLoginEvent event) {
         final OfflinePlayer player;
         if (VersionManager.isVersionAtLeast(VersionManager.V1_7_5))
@@ -117,16 +117,19 @@ public class MainListener extends SkillAPIListener
 
         final int delay = SkillAPI.getSettings().getSqlDelay();
         if (SkillAPI.getSettings().isUseSql() && delay > 0) {
+            SkillAPI.initFakeData(player);
+            String versionId = new VersionPlayer(player).getIdString();
             final BukkitTask task = SkillAPI.schedule(() -> {
                 try {
                     SkillAPI.reloadPlayerData(player);
                     init(player);
                 } finally {
-                    loadingPlayers.remove(event.getPlayer().getUniqueId());
+                    loadingPlayers.remove(versionId);
                 }
             }, delay);
-            loadingPlayers.put(event.getPlayer().getUniqueId(), task);
+            loadingPlayers.put(versionId, task);
         } else {
+            SkillAPI.loadPlayerData(player);
             init(player);
         }
     }
@@ -165,8 +168,9 @@ public class MainListener extends SkillAPIListener
             return;
 
         boolean skipSaving = false;
-        if (loadingPlayers.containsKey(player.getUniqueId())) {
-            loadingPlayers.remove(player.getUniqueId()).cancel();
+        String versionId = new VersionPlayer(player).getIdString();
+        if (loadingPlayers.containsKey(versionId)) {
+            loadingPlayers.remove(versionId).cancel();
             skipSaving = true;
         }
 
@@ -323,6 +327,9 @@ public class MainListener extends SkillAPIListener
     public void onRespawn(PlayerRespawnEvent event)
     {
         if (event.getPlayer().hasMetadata("NPC"))
+            return;
+
+        if (!SkillAPI.hasPlayerData(event.getPlayer()))
             return;
 
         PlayerData data = SkillAPI.getPlayerData(event.getPlayer());

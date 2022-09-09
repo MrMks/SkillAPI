@@ -51,11 +51,9 @@ import com.sucy.skill.hook.PluginChecker;
 import com.sucy.skill.listener.*;
 import com.sucy.skill.manager.*;
 import com.sucy.skill.packet.PacketInjector;
-import com.sucy.skill.task.CooldownTask;
-import com.sucy.skill.task.GUITask;
-import com.sucy.skill.task.ManaTask;
-import com.sucy.skill.task.SaveTask;
+import com.sucy.skill.task.*;
 import com.sucy.skill.thread.MainThread;
+import com.sucy.skill.util.CachePlayerAccounts;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -81,6 +79,7 @@ public class SkillAPI extends JavaPlugin {
     private final HashMap<String, Skill>          skills  = new HashMap<>();
     private final HashMap<String, RPGClass>       classes = new HashMap<>();
     private final HashMap<String, PlayerAccounts> players = new HashMap<>();
+    private final HashMap<String, CachePlayerAccounts> cachePlayers = new HashMap<>();
     private final ArrayList<String>               groups  = new ArrayList<>();
 
     private final List<SkillAPIListener> listeners = new ArrayList<>();
@@ -183,6 +182,7 @@ public class SkillAPI extends JavaPlugin {
         if (settings.isSkillBarCooldowns()) { MainThread.register(new CooldownTask()); }
         if (settings.isAutoSave()) { MainThread.register(new SaveTask(this)); }
         MainThread.register(new GUITask(this));
+        Bukkit.getScheduler().runTaskTimer(this, new OfflineCacheTask(cachePlayers), 20, 20);
 
         GUITool.init();
 
@@ -239,6 +239,7 @@ public class SkillAPI extends JavaPlugin {
         ClassBoardManager.clearAll();
         PlayerStats.clear();
 
+        MainListener.loadingPlayers.keySet().forEach(players::remove);
         MainListener.loadingPlayers.values().forEach(BukkitTask::cancel);
         MainListener.loadingPlayers.clear();
 
@@ -478,6 +479,16 @@ public class SkillAPI extends JavaPlugin {
     }
 
     private static PlayerAccounts doLoad(OfflinePlayer player) {
+
+        String id = new VersionPlayer(player).getIdString();
+
+        // check if accounts has been loaded for some reason in caches.
+        CachePlayerAccounts accounts = singleton().cachePlayers.remove(id);
+        if (accounts != null) {
+            singleton().players.put(id, accounts.getAccounts());
+            return accounts.getAccounts();
+        }
+
         // Load the data
         PlayerAccounts data = singleton.io.loadData(player);
         singleton.players.put(player.getUniqueId().toString(), data);
@@ -540,13 +551,10 @@ public class SkillAPI extends JavaPlugin {
             return;
         }
 
-        singleton.getServer().getScheduler().runTaskAsynchronously(singleton, () -> {
-            PlayerAccounts accounts = getPlayerAccountData(player);
-            if (!skipSaving) {
-                singleton.io.saveData(accounts);
-            }
-            singleton.players.remove(new VersionPlayer(player).getIdString());
-        });
+        if (!skipSaving) {
+            final PlayerAccounts accounts = singleton.players.remove(new VersionPlayer(player).getIdString());
+            Bukkit.getScheduler().runTaskAsynchronously(singleton, () -> singleton.io.saveData(accounts));
+        }
     }
 
     /**
@@ -562,11 +570,18 @@ public class SkillAPI extends JavaPlugin {
         if (player == null) { return null; }
 
         String id = new VersionPlayer(player).getIdString();
-        if (!singleton().players.containsKey(id)) {
-            PlayerAccounts data = loadPlayerData(player);
-            singleton.players.put(id, data);
-            return data;
-        } else { return singleton.players.get(id); }
+
+        if (player.isOnline()) {
+            return singleton().players.get(id);
+        } else {
+            CachePlayerAccounts accounts = singleton().cachePlayers.get(id);
+            if (accounts == null) {
+                accounts = new CachePlayerAccounts(singleton.io.loadData(player), 300); // 5 minutes
+                singleton().cachePlayers.put(id, accounts);
+            }
+            accounts.reset();
+            return accounts.getAccounts();
+        }
     }
 
     /**
