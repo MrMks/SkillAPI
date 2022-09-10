@@ -9,6 +9,7 @@ plugins {
 }
 
 version = '1.96'
+archivesBaseName = "SkillAPI-Pro"
 
 java.targetCompatibility(JavaVersion.VERSION_1_8)
 
