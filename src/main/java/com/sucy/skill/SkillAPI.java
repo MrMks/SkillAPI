@@ -552,8 +552,14 @@ public class SkillAPI extends JavaPlugin {
         }
 
         if (!skipSaving) {
-            final PlayerAccounts accounts = singleton.players.remove(new VersionPlayer(player).getIdString());
-            Bukkit.getScheduler().runTaskAsynchronously(singleton, () -> singleton.io.saveData(accounts));
+            final String id = new VersionPlayer(player).getIdString();
+            final PlayerAccounts accounts = singleton.players.get(id);
+            Bukkit.getScheduler().runTaskAsynchronously(singleton, () -> {
+                if (accounts != null) {
+                    singleton.io.saveData(accounts);
+                    schedule(() -> singleton.players.remove(id), 0);
+                }
+            });
         }
     }
 
