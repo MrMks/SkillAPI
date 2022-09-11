@@ -95,7 +95,7 @@ public class FlagData
             }
         }
         flags.put(flag, System.currentTimeMillis() + ticks * 50L);
-        tasks.put(flag, new FlagTask(flag, ticks).schedule(plugin));
+        tasks.put(flag, new FlagTask(flag).runTaskLater(plugin, ticks));
     }
 
     /**
@@ -193,38 +193,21 @@ public class FlagData
     private class FlagTask extends BukkitRunnable
     {
         private String flag;
-        private int left;
 
-        private int interval;
-
-        public FlagTask(String flag, int ticks)
+        public FlagTask(String flag)
         {
             this.flag = flag;
-            this.left = ticks;
-            this.interval = Math.min(ticks, TASK_INTERVAL);
         }
 
         @Override
         public void run()
         {
-            left -= interval;
-            if (left > TASK_INTERVAL) return;
-            else if (left > 0) {
-                this.cancel();
-                tasks.put(flag, new FlagTask(flag, left).schedule(plugin));
-                return;
-            }
             if (!entity.isValid() || entity.isDead())
             {
                 FlagManager.clearFlags(entity);
                 return;
             }
             removeFlag(flag, FlagExpireEvent.ExpireReason.TIME);
-            this.cancel();
-        }
-
-        public BukkitTask schedule(Plugin plugin) {
-            return runTaskTimer(plugin, interval, TASK_INTERVAL);
         }
     }
 }

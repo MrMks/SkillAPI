@@ -109,7 +109,7 @@ public class MainListener extends SkillAPIListener
     /**
      * Starts passives and applies class data when a player logs in.
      */
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(final PlayerJoinEvent event) {
         final Player player = event.getPlayer();
         if (player.hasMetadata("NPC") || !SkillAPI.getSettings().isWorldEnabled(player.getWorld()))

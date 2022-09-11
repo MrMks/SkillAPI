@@ -65,9 +65,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>The main class of the plugin which has the accessor methods into most of the API.</p>
@@ -182,7 +180,7 @@ public class SkillAPI extends JavaPlugin {
         if (settings.isSkillBarCooldowns()) { MainThread.register(new CooldownTask()); }
         if (settings.isAutoSave()) { MainThread.register(new SaveTask(this)); }
         MainThread.register(new GUITask(this));
-        Bukkit.getScheduler().runTaskTimer(this, new OfflineCacheTask(cachePlayers), 20, 20);
+        Bukkit.getScheduler().runTaskTimer(this, SkillAPI::checkPlayerAccountCache, 20, 20);
 
         GUITool.init();
 
@@ -227,6 +225,8 @@ public class SkillAPI extends JavaPlugin {
         mainThread.disable();
         mainThread = null;
 
+        Bukkit.getScheduler().cancelTasks(this);
+
         if (manaTask != null) {
             manaTask.cancel();
             manaTask = null;
@@ -242,6 +242,11 @@ public class SkillAPI extends JavaPlugin {
         MainListener.loadingPlayers.keySet().forEach(players::remove);
         MainListener.loadingPlayers.values().forEach(BukkitTask::cancel);
         MainListener.loadingPlayers.clear();
+
+        for (CachePlayerAccounts cache : cachePlayers.values()) {
+            io.saveData(cache.getAccounts());
+        }
+        cachePlayers.clear();
 
         // Clear skill bars and stop passives before disabling
         for (Player player : VersionManager.getOnlinePlayers()) {
@@ -472,10 +477,8 @@ public class SkillAPI extends JavaPlugin {
 
         // Already loaded for some reason, no need to load again
         String id = new VersionPlayer(player).getIdString();
-        if (singleton().players.containsKey(id)) { return singleton.players.get(id); }
-
-        // Load the data
-        return doLoad(player);
+        PlayerAccounts accounts = singleton().players.get(id);
+        return accounts == null ? doLoad(player) : accounts;
     }
 
     private static PlayerAccounts doLoad(OfflinePlayer player) {
@@ -578,7 +581,8 @@ public class SkillAPI extends JavaPlugin {
         String id = new VersionPlayer(player).getIdString();
 
         if (player.isOnline()) {
-            return singleton().players.get(id);
+            PlayerAccounts accounts = singleton().players.get(id);
+            return accounts == null ? doLoad(player) : accounts;
         } else {
             CachePlayerAccounts accounts = singleton().cachePlayers.get(id);
             if (accounts == null) {
@@ -587,6 +591,21 @@ public class SkillAPI extends JavaPlugin {
             }
             accounts.reset();
             return accounts.getAccounts();
+        }
+    }
+
+    private static void checkPlayerAccountCache() {
+        for (Map.Entry<String, CachePlayerAccounts> entry : singleton().cachePlayers.entrySet()) {
+
+            if (entry.getValue().tick()) {
+                PlayerAccounts cache = entry.getValue().getAccounts();
+                String key = entry.getKey();
+                Bukkit.getScheduler().runTaskAsynchronously(singleton(), () -> {
+                    singleton().io.saveData(cache);
+                    schedule(() -> singleton().cachePlayers.remove(key), 0);
+                });
+            }
+
         }
     }
 
