@@ -48,7 +48,7 @@ public class PlayerAccounts {
     private final HashMap<Integer, PlayerData> classData = new HashMap<Integer, PlayerData>();
 
     private int           active;
-    private OfflinePlayer player;
+    private VersionPlayer player;
     private boolean       fake;
 
     public PlayerAccounts(OfflinePlayer player) {
@@ -63,9 +63,9 @@ public class PlayerAccounts {
      * @param player player to store data for
      */
     public PlayerAccounts(OfflinePlayer player, boolean isFake) {
-        this.player = player;
+        this.player = new VersionPlayer(player);
 
-        PlayerData data = new PlayerData(player, true);
+        PlayerData data = new PlayerData(this.player, true);
         classData.put(1, data);
         active = 1;
         this.fake = isFake;
@@ -104,7 +104,7 @@ public class PlayerAccounts {
      * @return Bukkit offline player object
      */
     public OfflinePlayer getOfflinePlayer() {
-        return player;
+        return player.getOfflinePlayer();
     }
 
     /**
@@ -163,7 +163,7 @@ public class PlayerAccounts {
      */
     public PlayerData getData(int id, OfflinePlayer player, boolean init) {
         if (!hasData(id) && id > 0 && player != null) {
-            classData.put(id, new PlayerData(player, init));
+            classData.put(id, new PlayerData(this.player, init));
         }
         return classData.get(id);
     }
@@ -204,7 +204,7 @@ public class PlayerAccounts {
             return;
         }
         if (id <= getAccountLimit() && id > 0 && !classData.containsKey(id)) {
-            classData.put(id, new PlayerData(player, false));
+            classData.put(id, new PlayerData(this.player, false));
         }
         if (classData.containsKey(id)) {
             PlayerAccountChangeEvent event = new PlayerAccountChangeEvent(this, active, id);
