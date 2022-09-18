@@ -38,6 +38,7 @@ import com.sucy.skill.api.player.PlayerClass;
 import com.sucy.skill.api.player.PlayerData;
 import com.sucy.skill.api.player.PlayerSkill;
 import com.sucy.skill.api.skills.Skill;
+import com.sucy.skill.api.util.BuffManager;
 import com.sucy.skill.data.PlayerStats;
 import com.sucy.skill.data.Settings;
 import com.sucy.skill.data.io.ConfigIO;
@@ -51,7 +52,10 @@ import com.sucy.skill.hook.PluginChecker;
 import com.sucy.skill.listener.*;
 import com.sucy.skill.manager.*;
 import com.sucy.skill.packet.PacketInjector;
-import com.sucy.skill.task.*;
+import com.sucy.skill.task.CooldownTask;
+import com.sucy.skill.task.GUITask;
+import com.sucy.skill.task.ManaTask;
+import com.sucy.skill.task.SaveTask;
 import com.sucy.skill.thread.MainThread;
 import com.sucy.skill.util.CachePlayerAccounts;
 import org.bukkit.Bukkit;
@@ -65,7 +69,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>The main class of the plugin which has the accessor methods into most of the API.</p>
@@ -181,6 +188,10 @@ public class SkillAPI extends JavaPlugin {
         if (settings.isAutoSave()) { MainThread.register(new SaveTask(this)); }
         MainThread.register(new GUITask(this));
         Bukkit.getScheduler().runTaskTimer(this, SkillAPI::checkPlayerAccountCache, 20, 20);
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            DynamicSkill.triggerCleanData(true);
+            BuffManager.triggerCleanData(true);
+        }, 600, 600);
 
         GUITool.init();
 
@@ -254,7 +265,8 @@ public class SkillAPI extends JavaPlugin {
         }
 
         io.saveAll();
-        DynamicSkill.clearCastData(); // just in case
+        // do not call this to check if we make it no leaks
+        //DynamicSkill.clearCastData(); // just in case
 
         skills.clear();
         classes.clear();

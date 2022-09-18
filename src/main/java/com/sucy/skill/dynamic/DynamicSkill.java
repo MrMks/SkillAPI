@@ -37,15 +37,13 @@ import com.sucy.skill.cast.IIndicator;
 import com.sucy.skill.dynamic.trigger.TriggerComponent;
 import com.sucy.skill.log.Logger;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Listener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.sucy.skill.dynamic.ComponentRegistry.getTrigger;
 
@@ -58,6 +56,9 @@ public class DynamicSkill extends Skill implements SkillShot, PassiveSkill, List
     private final Map<Integer, Integer>        active     = new HashMap<>();
 
     private static final HashMap<Integer, HashMap<String, Object>> castData   = new HashMap<>();
+    private static final List<Entity> entities = new LinkedList<>();
+    private static byte modCount = 0;
+    private static boolean clearedBeforeTask = false;
 
     private TriggerComponent castTrigger;
     private TriggerComponent initializeTrigger;
@@ -165,8 +166,10 @@ public class DynamicSkill extends Skill implements SkillShot, PassiveSkill, List
         if (map == null) {
             map = new HashMap<>();
             map.put("caster", caster);
+            entities.add(caster);
             castData.put(caster.getEntityId(), map);
         }
+        triggerCleanData(false);
         return map;
     }
 
@@ -177,10 +180,31 @@ public class DynamicSkill extends Skill implements SkillShot, PassiveSkill, List
      */
     public static void clearCastData(final LivingEntity entity) {
         castData.remove(entity.getEntityId());
+        entities.remove(entity);
     }
 
     public static void clearCastData() {
         castData.clear();
+        entities.clear();
+    }
+
+    public static void triggerCleanData(boolean fromTask) {
+        if (!fromTask && modCount >= 0) {
+            modCount++;
+            return;
+        }
+        if (!fromTask || !clearedBeforeTask) {
+            Iterator<Entity> iterator = entities.iterator();
+            while (iterator.hasNext()) {
+                Entity entity = iterator.next();
+                if (!entity.isValid()) {
+                    iterator.remove();
+                    castData.remove(entity.getEntityId());
+                }
+            }
+            modCount = 0;
+        }
+        clearedBeforeTask = !fromTask;
     }
 
     /**

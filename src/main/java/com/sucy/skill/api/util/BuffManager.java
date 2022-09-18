@@ -28,8 +28,7 @@ package com.sucy.skill.api.util;
 
 import org.bukkit.entity.LivingEntity;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * The manager for temporary entity buff data
@@ -37,6 +36,9 @@ import java.util.UUID;
 public class BuffManager
 {
     private static final HashMap<UUID, BuffData> data = new HashMap<UUID, BuffData>();
+    private static final List<LivingEntity> entities = new LinkedList<>();
+    private static byte modCount = 0;
+    private static boolean clearedBeforeTask = false;
 
     /**
      * Retrieves the buff data for an entity. This returns null if
@@ -65,7 +67,9 @@ public class BuffManager
 
         if (!data.containsKey(entity.getUniqueId()) && create) {
             data.put(entity.getUniqueId(), new BuffData(entity));
+            entities.add(entity);
         }
+        triggerCleanData(false);
         return data.get(entity.getUniqueId());
     }
 
@@ -77,10 +81,30 @@ public class BuffManager
     public static void clearData(final LivingEntity entity) {
         if (entity == null) return;
 
+        entities.remove(entity);
         final BuffData result = data.remove(entity.getUniqueId());
         if (result != null) {
             result.clear();
         }
+    }
+
+    public static void triggerCleanData(boolean fromTask) {
+        if (!fromTask && modCount >= 0) {
+            modCount++;
+            return;
+        }
+        if (!fromTask || !clearedBeforeTask) {
+            Iterator<LivingEntity> iterator = entities.iterator();
+            while (iterator.hasNext()) {
+                LivingEntity entity = iterator.next();
+                if (!entity.isValid()) {
+                    iterator.remove();
+                    data.remove(entity.getUniqueId());
+                }
+            }
+            modCount = 0;
+        }
+        clearedBeforeTask = !fromTask;
     }
 
     /**
