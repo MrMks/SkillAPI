@@ -199,7 +199,7 @@ public class BlockMechanic extends MechanicComponent {
         // Revert after duration
         final RevertTask task = new RevertTask(caster, states);
         task.runTaskLater(Bukkit.getPluginManager().getPlugin("SkillAPI"), ticks);
-        tasks.computeIfAbsent(caster.getEntityId(), ArrayList::new).add(task);
+        tasks.computeIfAbsent(caster.getEntityId(), size -> new ArrayList<>()).add(task);
 
         return true;
     }

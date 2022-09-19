@@ -65,7 +65,7 @@ public class AttributeMechanic extends MechanicComponent {
             return false;
         }
 
-        final Map<String, AttribTask> casterTasks = tasks.computeIfAbsent(caster.getEntityId(), HashMap::new);
+        final Map<String, AttribTask> casterTasks = tasks.computeIfAbsent(caster.getEntityId(), size -> new HashMap<>());
         final int amount = (int) parseValues(caster, AMOUNT, level, 5);
         final double seconds = parseValues(caster, SECONDS, level, 3.0);
         final boolean stackable = settings.getString(STACKABLE, "false").equalsIgnoreCase("true");
