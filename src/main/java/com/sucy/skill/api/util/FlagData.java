@@ -210,4 +210,8 @@ public class FlagData
             removeFlag(flag, FlagExpireEvent.ExpireReason.TIME);
         }
     }
+
+    LivingEntity getEntity() {
+        return entity;
+    }
 }

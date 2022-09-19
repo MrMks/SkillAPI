@@ -39,6 +39,7 @@ import com.sucy.skill.api.player.PlayerData;
 import com.sucy.skill.api.player.PlayerSkill;
 import com.sucy.skill.api.skills.Skill;
 import com.sucy.skill.api.util.BuffManager;
+import com.sucy.skill.api.util.FlagManager;
 import com.sucy.skill.data.PlayerStats;
 import com.sucy.skill.data.Settings;
 import com.sucy.skill.data.io.ConfigIO;
@@ -191,6 +192,7 @@ public class SkillAPI extends JavaPlugin {
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             DynamicSkill.triggerCleanData(true);
             BuffManager.triggerCleanData(true);
+            FlagManager.triggerCleanData(true);
         }, 600, 600);
 
         GUITool.init();

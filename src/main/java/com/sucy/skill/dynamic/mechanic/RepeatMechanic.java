@@ -65,7 +65,7 @@ public class RepeatMechanic extends MechanicComponent {
             final int period = (int) (settings.getDouble(PERIOD, 1.0) * 20);
             final boolean stopOnFail = settings.getBool(STOP_ON_FAIL, false);
             final RepeatTask task = new RepeatTask(caster, targets, count, delay, period, stopOnFail);
-            tasks.computeIfAbsent(caster.getEntityId(), ArrayList::new).add(task);
+            tasks.computeIfAbsent(caster.getEntityId(), (size) -> new ArrayList<>()).add(task);
 
             return true;
         }

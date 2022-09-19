@@ -8,7 +8,7 @@ plugins {
     id 'java'
 }
 
-version = '1.99'
+version = '1.100'
 archivesBaseName = "SkillAPI-Pro"
 
 java.targetCompatibility(JavaVersion.VERSION_1_8)
@@ -34,6 +34,7 @@ dependencies {
             'modules/Vault.jar',
             'modules/WorldEdit.jar',
             'modules/WorldGuard.jar',
+            'modules/SecondSkillBar-1.2.6-12-a8.jar'
     )
 
     testCompileOnly 'junit:junit:4.12'

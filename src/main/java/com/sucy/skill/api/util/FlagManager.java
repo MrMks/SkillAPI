@@ -26,9 +26,11 @@
  */
 package com.sucy.skill.api.util;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * The manager for temporary entity flag data
@@ -36,6 +38,8 @@ import java.util.HashMap;
 public class FlagManager
 {
     private static final HashMap<Integer, FlagData> data = new HashMap<Integer, FlagData>();
+    private static byte modCount = 0;
+    private static boolean clearedBeforeTask = false;
 
     /**
      * Retrieves the flag data for an entity. This creates new data if
@@ -70,6 +74,7 @@ public class FlagManager
         {
             data.put(entity.getEntityId(), new FlagData(entity));
         }
+        triggerCleanData(false);
         return data.get(entity.getEntityId());
     }
 
@@ -131,6 +136,7 @@ public class FlagManager
         {
             return 0;
         }
+        triggerCleanData(false);
         return data.containsKey(entity.getEntityId()) ? getFlagData(entity).getSecondsLeft(flag) : 0;
     }
 
@@ -149,6 +155,19 @@ public class FlagManager
         if (result != null)
         {
             result.clear();
+            triggerCleanData(false);
         }
+    }
+
+    public static void triggerCleanData(boolean fromTask) {
+        if (!fromTask && modCount >= 0) {
+            modCount++;
+            return;
+        }
+        if (!fromTask || !clearedBeforeTask) {
+            data.values().removeIf(flagData -> flagData.getEntity().isValid());
+            modCount = 0;
+        }
+        clearedBeforeTask = !fromTask;
     }
 }
