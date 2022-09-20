@@ -162,6 +162,7 @@ public class DynamicSkill extends Skill implements SkillShot, PassiveSkill, List
      */
     public static HashMap<String, Object> getCastData(final LivingEntity caster) {
         if (caster == null) { return null; }
+        triggerCleanData(false);
         HashMap<String, Object> map = castData.get(caster.getEntityId());
         if (map == null) {
             map = new HashMap<>();
@@ -169,7 +170,6 @@ public class DynamicSkill extends Skill implements SkillShot, PassiveSkill, List
             entities.add(caster);
             castData.put(caster.getEntityId(), map);
         }
-        triggerCleanData(false);
         return map;
     }
 
