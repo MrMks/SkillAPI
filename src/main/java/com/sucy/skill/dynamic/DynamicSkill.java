@@ -197,7 +197,7 @@ public class DynamicSkill extends Skill implements SkillShot, PassiveSkill, List
             Iterator<Entity> iterator = entities.iterator();
             while (iterator.hasNext()) {
                 Entity entity = iterator.next();
-                if (!entity.isValid()) {
+                if (!(entity instanceof Player) && !entity.isValid()) {
                     iterator.remove();
                     castData.remove(entity.getEntityId());
                 }

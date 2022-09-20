@@ -28,6 +28,7 @@ package com.sucy.skill.api.util;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -165,7 +166,10 @@ public class FlagManager
             return;
         }
         if (!fromTask || !clearedBeforeTask) {
-            data.values().removeIf(flagData -> flagData.getEntity().isValid());
+            data.values().removeIf(flagData -> {
+                LivingEntity entity = flagData.getEntity();
+                return (!(entity instanceof Player)) && !entity.isValid();
+            });
             modCount = 0;
         }
         clearedBeforeTask = !fromTask;

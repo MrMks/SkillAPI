@@ -27,6 +27,7 @@
 package com.sucy.skill.api.util;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 
@@ -97,7 +98,7 @@ public class BuffManager
             Iterator<LivingEntity> iterator = entities.iterator();
             while (iterator.hasNext()) {
                 LivingEntity entity = iterator.next();
-                if (!entity.isValid()) {
+                if (!(entity instanceof Player) && !entity.isValid()) {
                     iterator.remove();
                     data.remove(entity.getUniqueId());
                 }
