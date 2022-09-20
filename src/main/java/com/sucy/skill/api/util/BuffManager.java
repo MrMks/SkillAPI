@@ -37,7 +37,7 @@ import java.util.*;
 public class BuffManager
 {
     private static final HashMap<UUID, BuffData> data = new HashMap<UUID, BuffData>();
-    private static final List<LivingEntity> entities = new LinkedList<>();
+//    private static final List<LivingEntity> entities = new LinkedList<>();
     private static byte modCount = 0;
     private static boolean clearedBeforeTask = false;
 
@@ -68,7 +68,6 @@ public class BuffManager
 
         if (!data.containsKey(entity.getUniqueId()) && create) {
             data.put(entity.getUniqueId(), new BuffData(entity));
-            entities.add(entity);
         }
         triggerCleanData(false);
         return data.get(entity.getUniqueId());
@@ -82,7 +81,6 @@ public class BuffManager
     public static void clearData(final LivingEntity entity) {
         if (entity == null) return;
 
-        entities.remove(entity);
         final BuffData result = data.remove(entity.getUniqueId());
         if (result != null) {
             result.clear();
@@ -95,9 +93,9 @@ public class BuffManager
             return;
         }
         if (!fromTask || !clearedBeforeTask) {
-            Iterator<LivingEntity> iterator = entities.iterator();
+            Iterator<BuffData> iterator = data.values().iterator();
             while (iterator.hasNext()) {
-                LivingEntity entity = iterator.next();
+                LivingEntity entity = iterator.next().getEntity();
                 if (!(entity instanceof Player) && !entity.isValid()) {
                     iterator.remove();
                     data.remove(entity.getUniqueId());

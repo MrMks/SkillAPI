@@ -250,6 +250,10 @@ public class BuffData
         BuffManager.clearData(entity);
     }
 
+    LivingEntity getEntity() {
+        return entity;
+    }
+
     private class BuffTask extends BukkitRunnable
     {
         private final String type;
