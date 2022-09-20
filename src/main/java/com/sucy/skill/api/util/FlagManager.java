@@ -120,7 +120,8 @@ public class FlagManager
      */
     public static boolean hasFlag(LivingEntity entity, String flag)
     {
-        return entity != null && data.containsKey(entity.getEntityId()) && getFlagData(entity, false).hasFlag(flag);
+        FlagData tmp;
+        return entity != null && (tmp = data.get(entity.getEntityId())) != null && tmp.hasFlag(flag);
     }
 
     /**
