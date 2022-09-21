@@ -56,7 +56,7 @@ public class DynamicSkill extends Skill implements SkillShot, PassiveSkill, List
     private final Map<Integer, Integer>        active     = new HashMap<>();
 
     private static final HashMap<Integer, HashMap<String, Object>> castData   = new HashMap<>();
-    private static final List<Entity> entities = new LinkedList<>();
+    private static final List<Entity> entities = new ArrayList<>();
     private static byte modCount = 0;
     private static boolean clearedBeforeTask = false;
 
@@ -264,6 +264,7 @@ public class DynamicSkill extends Skill implements SkillShot, PassiveSkill, List
         cleanup(user, initializeTrigger);
 
         trigger(user, user, 1, cleanupTrigger);
+        cleanup(user, cleanupTrigger);
     }
 
     private void cleanup(final LivingEntity user, final TriggerComponent component) {

@@ -10,6 +10,7 @@ import com.sucy.skill.dynamic.trigger.Trigger;
 import com.sucy.skill.dynamic.trigger.TriggerComponent;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ public class TriggerMechanic extends MechanicComponent {
     private static final String ONCE = "once";
 
     private final Map<Integer, List<Context>> CASTER_MAP = new HashMap<Integer, List<Context>>();
-
+    private final Map<Integer, List<StopTask>> CASTER_TASKS = new HashMap<>();
     private TriggerHandler triggerHandler;
     private boolean once;
     private boolean stackable;
@@ -64,16 +65,21 @@ public class TriggerMechanic extends MechanicComponent {
         boolean worked = false;
         for (final LivingEntity target : targets) {
             if (!stackable && CASTER_MAP.containsKey(target.getEntityId()))
-                return false;
+                continue;
 
             if (!CASTER_MAP.containsKey(target.getEntityId())) {
                 CASTER_MAP.put(target.getEntityId(), new ArrayList<>());
+            }
+            if (!CASTER_TASKS.containsKey(caster.getEntityId())) {
+                CASTER_TASKS.put(caster.getEntityId(), new ArrayList<>());
             }
             triggerHandler.init(target, level);
 
             final Context context = new Context(caster, level);
             CASTER_MAP.get(target.getEntityId()).add(context);
-            SkillAPI.schedule(new StopTask(target, context), ticks);
+            StopTask task;
+            SkillAPI.schedule(task = new StopTask(target, context), ticks);
+            CASTER_TASKS.get(caster.getEntityId()).add(task);
             worked = true;
         }
         return worked;
@@ -90,7 +96,17 @@ public class TriggerMechanic extends MechanicComponent {
         }
     }
 
-    private class StopTask implements Runnable {
+    @Override
+    protected void doCleanUp(LivingEntity caster) {
+        List<StopTask> tasks = CASTER_TASKS.remove(caster.getEntityId());
+        if (tasks == null) return;
+        for (StopTask task : tasks) {
+            task.run();
+            task.cancel();
+        }
+    }
+
+    private class StopTask extends BukkitRunnable {
 
         private final LivingEntity target;
         private final Context context;
@@ -127,6 +143,7 @@ public class TriggerMechanic extends MechanicComponent {
             final List<LivingEntity> targetList = new ArrayList<LivingEntity>();
             targetList.add(target);
 
+            contexts.removeIf(context -> !context.caster.isValid());
             for (final Context context : contexts) {
                 DynamicSkill.getCastData(context.caster).put("listen-target", targetList);
                 TriggerMechanic.this.executeChildren(context.caster, context.level, targets);

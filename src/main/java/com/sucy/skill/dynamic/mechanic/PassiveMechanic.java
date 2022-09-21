@@ -102,11 +102,7 @@ public class PassiveMechanic extends MechanicComponent {
 
         @Override
         public void run() {
-            for (int i = 0; i < targets.size(); i++) {
-                if (targets.get(i).isDead() || !targets.get(i).isValid()) {
-                    targets.remove(i);
-                }
-            }
+            targets.removeIf(entity -> entity.isDead() || !entity.isValid());
             if (!skill.isActive(caster) || targets.size() == 0) {
                 cancel();
                 return;

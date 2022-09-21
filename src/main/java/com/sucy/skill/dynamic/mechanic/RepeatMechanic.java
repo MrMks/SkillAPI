@@ -118,14 +118,12 @@ public class RepeatMechanic extends MechanicComponent {
 
         @Override
         public void run() {
-            for (int i = 0; i < targets.size(); i++) {
-                if (targets.get(i).isDead() || !targets.get(i).isValid()) { targets.remove(i); }
-            }
-
             if (!skill.isActive(caster) || targets.size() == 0) {
                 cancel();
                 return;
             }
+
+            targets.removeIf(entity -> entity.isDead() || !entity.isValid());
 
             final int level = skill.getActiveLevel(caster);
             boolean success = executeChildren(caster, level, targets);

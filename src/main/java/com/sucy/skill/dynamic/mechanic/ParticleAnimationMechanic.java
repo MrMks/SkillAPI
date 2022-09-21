@@ -173,6 +173,7 @@ public class ParticleAnimationMechanic extends MechanicComponent
                 int j = 0;
                 for (LivingEntity target : targets)
                 {
+                    if (!target.isValid()) continue;
                     Location loc = target.getLocation();
 
                     rotate(offset, rots[j], rots[j + 1]);
