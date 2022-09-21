@@ -65,7 +65,6 @@ public class BuffManager
      */
     public static BuffData getBuffData(final LivingEntity entity, final boolean create) {
         if (entity == null) return null;
-        triggerCleanData(false);
 
         if (!data.containsKey(entity.getUniqueId()) && create) {
             data.put(entity.getUniqueId(), new BuffData(entity));
@@ -85,6 +84,7 @@ public class BuffManager
         if (result != null) {
             result.clear();
         }
+        triggerCleanData(false);
     }
 
     public static void triggerCleanData(boolean fromTask) {

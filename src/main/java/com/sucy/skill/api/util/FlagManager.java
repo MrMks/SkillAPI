@@ -26,12 +26,10 @@
  */
 package com.sucy.skill.api.util;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * The manager for temporary entity flag data
@@ -75,7 +73,6 @@ public class FlagManager
         {
             data.put(entity.getEntityId(), new FlagData(entity));
         }
-        triggerCleanData(false);
         return data.get(entity.getEntityId());
     }
 
@@ -138,7 +135,6 @@ public class FlagManager
         {
             return 0;
         }
-        triggerCleanData(false);
         return data.containsKey(entity.getEntityId()) ? getFlagData(entity).getSecondsLeft(flag) : 0;
     }
 
@@ -157,8 +153,8 @@ public class FlagManager
         if (result != null)
         {
             result.clear();
-            triggerCleanData(false);
         }
+        triggerCleanData(false);
     }
 
     public static void triggerCleanData(boolean fromTask) {
