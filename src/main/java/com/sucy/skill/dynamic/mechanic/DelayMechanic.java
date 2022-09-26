@@ -26,10 +26,15 @@
  */
 package com.sucy.skill.dynamic.mechanic;
 
-import org.bukkit.Bukkit;
+import com.sucy.skill.SkillAPI;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Executes child components after a delay
@@ -41,6 +46,8 @@ public class DelayMechanic extends MechanicComponent {
     public String getKey() {
         return "delay";
     }
+
+    private HashMap<Integer, ArrayList<BukkitRunnable>> tasks = new HashMap<>();
 
     /**
      * Executes the component
@@ -57,11 +64,27 @@ public class DelayMechanic extends MechanicComponent {
             return false;
         }
         double seconds = parseValues(caster, SECONDS, level, 2.0);
-        Bukkit.getScheduler().runTaskLater(
-                Bukkit.getPluginManager().getPlugin("SkillAPI"),
-                () -> executeChildren(caster, level, targets),
-                (long) (seconds * 20)
-        );
+        BukkitRunnable task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (caster.isValid()) {
+                    List<LivingEntity> filtered = targets.stream().filter(Entity::isValid).collect(Collectors.toList());
+                    executeChildren(caster, level, filtered);
+                }
+                List<BukkitRunnable> list = tasks.get(caster.getEntityId());
+                if (list != null) list.remove(this);
+            }
+        };
+        tasks.computeIfAbsent(caster.getEntityId(), id -> new ArrayList<>()).add(task);
+        SkillAPI.schedule(task, (int) (seconds * 20));
         return true;
+    }
+
+    @Override
+    protected void doCleanUp(LivingEntity caster) {
+        super.doCleanUp(caster);
+        List<BukkitRunnable> list = tasks.remove(caster.getEntityId());
+        if (list != null) list.forEach(BukkitRunnable::cancel);
+
     }
 }

@@ -30,6 +30,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 /**
  * The manager for temporary entity flag data
@@ -163,10 +164,10 @@ public class FlagManager
             return;
         }
         if (!fromTask || !clearedBeforeTask) {
-            data.values().removeIf(flagData -> {
-                LivingEntity entity = flagData.getEntity();
+            data.values().stream().filter(data -> {
+                LivingEntity entity = data.getEntity();
                 return (!(entity instanceof Player)) && !entity.isValid();
-            });
+            }).collect(Collectors.toList()).forEach(FlagData::clear);
             modCount = 0;
         }
         clearedBeforeTask = !fromTask;

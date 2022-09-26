@@ -166,6 +166,9 @@ public class DynamicSkill extends Skill implements SkillShot, PassiveSkill, List
         if (map == null) {
             map = new HashMap<>();
             map.put("caster", caster);
+            if (caster instanceof Player && !caster.isValid()) {
+                Thread.dumpStack();
+            }
             entities.add(caster);
             castData.put(caster.getEntityId(), map);
         }
