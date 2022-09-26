@@ -213,6 +213,9 @@ public class ParticleProjectileMechanic extends MechanicComponent implements Pro
      */
     @Override
     public void callback(CustomProjectile projectile, LivingEntity hit) {
+        LivingEntity caster = projectile.getShooter();
+        if (!caster.isValid()) return;
+
         if (hit == null) {
             hit = new TempEntity(projectile.getLocation());
         }

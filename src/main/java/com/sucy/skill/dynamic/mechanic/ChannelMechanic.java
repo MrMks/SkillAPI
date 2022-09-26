@@ -26,12 +26,19 @@
  */
 package com.sucy.skill.dynamic.mechanic;
 
+import com.sucy.skill.SkillAPI;
 import com.sucy.skill.api.util.FlagManager;
 import com.sucy.skill.api.util.StatusFlag;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Executes child components after a delay, applying "channeling" rules
@@ -44,6 +51,8 @@ public class ChannelMechanic extends MechanicComponent {
     public String getKey() {
         return "channel";
     }
+
+    private HashMap<Integer, List<BukkitRunnable>> tasks = new HashMap<>();
 
     /**
      * Executes the component
@@ -62,16 +71,32 @@ public class ChannelMechanic extends MechanicComponent {
         boolean still = settings.getBool(STILL);
         int ticks = (int) (20 * parseValues(caster, SECONDS, level, 2.0));
         if (still) { FlagManager.addFlag(caster, StatusFlag.CHANNELING, ticks + 2); }
-        Bukkit.getScheduler().runTaskLater(
-                Bukkit.getPluginManager().getPlugin("SkillAPI"), () -> {
+        BukkitRunnable task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (caster.isValid()) {
                     if (FlagManager.hasFlag(caster, StatusFlag.CHANNEL)) {
                         FlagManager.removeFlag(caster, StatusFlag.CHANNEL);
                         FlagManager.removeFlag(caster, StatusFlag.CHANNELING);
-                        executeChildren(caster, level, targets);
+                        executeChildren(caster, level, targets.stream().filter(Entity::isValid).collect(Collectors.toList()));
                     }
-                }, ticks
-        );
+                }
+                List<BukkitRunnable> list = tasks.remove(caster.getEntityId());
+                if (list != null) list.remove(this);
+            }
+        };
+        tasks.computeIfAbsent(caster.getEntityId(), eid -> new ArrayList<>()).add(task);
+        SkillAPI.schedule(task, ticks);
         FlagManager.addFlag(caster, StatusFlag.CHANNEL, ticks + 2);
         return true;
+    }
+
+    @Override
+    protected void doCleanUp(LivingEntity caster) {
+        super.doCleanUp(caster);
+        List<BukkitRunnable> list = tasks.remove(caster.getEntityId());
+        if (list != null) {
+            list.forEach(BukkitRunnable::cancel);
+        }
     }
 }
