@@ -154,6 +154,8 @@ public class SkillAPI extends JavaPlugin {
         listen(new KillListener(), true);
         listen(new AddonListener(), true);
         listen(new ItemListener(), settings.isCheckLore());
+        listen(new ItemListener.Offhand(),
+                settings.isCheckLore() && VersionManager.isVersionAtLeast(VersionManager.V1_9_0));
         listen(new BarListener(), settings.isSkillBarEnabled());
         if (VersionManager.isVersionAtLeast(VersionManager.V1_8_0)) {
             final PacketInjector injector = new PacketInjector(this);

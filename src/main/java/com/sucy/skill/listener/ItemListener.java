@@ -43,12 +43,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemBreakEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -233,10 +228,20 @@ public class ItemListener extends SkillAPIListener
         return builder.build();
     }
 
+    public static class Offhand extends SkillAPIListener {
+
+        @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+        public void onSwap(PlayerSwapHandItemsEvent event) {
+            if (SkillAPI.getSettings().isWorldEnabled(event.getPlayer().getWorld()))
+                SkillAPI.schedule(new UpdateTask(event.getPlayer(), true), 1);
+        }
+
+    }
+
     /**
      * Handles updating equipped armor
      */
-    private class UpdateTask extends BukkitRunnable
+    private static class UpdateTask extends BukkitRunnable
     {
         private Player player;
 

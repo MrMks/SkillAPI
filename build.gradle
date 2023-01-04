@@ -8,7 +8,7 @@ plugins {
     id 'java'
 }
 
-version = '1.106'
+version = '1.107'
 archivesBaseName = "SkillAPI-Pro"
 
 java.targetCompatibility(JavaVersion.VERSION_1_8)
@@ -49,7 +49,7 @@ processResources {
 }
 
 jar {
-    archiveClassifier.set("trace")
+//    archiveClassifier.set("trace")
     from 'modules/SkillAPIModule.jar'
     from 'modules/SkillAPIPlaceholders.jar'
 }

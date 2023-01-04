@@ -28,6 +28,7 @@ package com.sucy.skill.data;
 
 import com.google.common.base.Objects;
 import com.rit.sucy.config.parse.NumberParser;
+import com.rit.sucy.version.VersionManager;
 import com.sucy.skill.SkillAPI;
 import com.sucy.skill.api.classes.RPGClass;
 import com.sucy.skill.api.player.PlayerClass;
@@ -99,9 +100,14 @@ public class PlayerEquips
     public void update(Player player)
     {
         PlayerInventory inv = player.getInventory();
-        weapon = swap(inv, inv.getHeldItemSlot(), weapon, true);
+        int[] unMeets = new int[other.length + 2];
+        unMeets[0] = 0;
+
+        weapon = swap(inv, inv.getHeldItemSlot(), weapon, true, unMeets);
         for (int i = 0; i < other.length; i++)
-            other[i] = swap(inv, SkillAPI.getSettings().getSlots()[i], other[i], i == offhand);
+            other[i] = swap(inv, SkillAPI.getSettings().getSlots()[i], other[i], i == offhand, unMeets);
+
+        postSwap(inv, unMeets);
     }
 
     /**
@@ -113,7 +119,7 @@ public class PlayerEquips
      *
      * @return the used equip data
      */
-    private EquipData swap(PlayerInventory inv, int index, EquipData from, boolean weapon)
+    private EquipData swap(PlayerInventory inv, int index, EquipData from, boolean weapon, int[] unMeets)
     {
         EquipData to = make(inv.getItem(index));
         if (Objects.equal(from.item, to.item))
@@ -132,9 +138,11 @@ public class PlayerEquips
         {
             if (SkillAPI.getSettings().isDropWeapon() || !weapon) {
                 inv.setItem(index, TEMP);
+                unMeets[(unMeets[0]++) + 1] = index;
                 for (ItemStack item : inv.addItem(to.item).values())
                     inv.getHolder().getWorld().dropItemNaturally(inv.getHolder().getLocation(), item);
-                inv.setItem(index, null);
+//                inv.setItem(index, null);
+
                 return empty;
             }
             return to;
@@ -144,6 +152,11 @@ public class PlayerEquips
             to.apply();
             return to;
         }
+    }
+
+    private void postSwap(PlayerInventory inv, int[] unMeets) {
+        for (int i = 0; i < unMeets[0]; i++)
+            inv.setItem(unMeets[i + 1], null);
     }
 
     private boolean isArmor(final ItemStack item) {
@@ -168,7 +181,12 @@ public class PlayerEquips
      */
     public void updateWeapon(PlayerInventory inv)
     {
-        weapon = swap(inv, inv.getHeldItemSlot(), weapon, true);
+        int[] ints = new int[]{0, 0, 0};
+        weapon = swap(inv, inv.getHeldItemSlot(), weapon, true, ints);
+        if (VersionManager.isVersionAtLeast(VersionManager.V1_9_0) && offhand >= 0) {
+            other[offhand] = swap(inv, 40, other[offhand], true, ints);
+        }
+        postSwap(inv, ints);
     }
 
     /**
