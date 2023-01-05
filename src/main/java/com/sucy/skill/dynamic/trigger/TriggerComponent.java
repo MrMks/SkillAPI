@@ -20,7 +20,11 @@ public class TriggerComponent extends EffectComponent {
     }
 
     public boolean trigger(final LivingEntity caster, final LivingEntity target, final int level) {
-        return execute(caster, level, Lists.asList(target));
+        try {
+            return execute(caster, level, Lists.asList(target));
+        } catch (Exception e) {
+            throw new RuntimeException("Exception while running skill: " + skill.getName(), e);
+        }
     }
 
     @Override

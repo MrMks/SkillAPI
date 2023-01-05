@@ -662,4 +662,16 @@ public class TempEntity implements LivingEntity {
     public AttributeInstance getAttribute(Attribute attribute) {
         return null;
     }
+
+    @Override
+    public int hashCode() {
+        return target.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof TempEntity)) return false;
+        TempEntity te = (TempEntity) obj;
+        return target.equals(te.target);
+    }
 }

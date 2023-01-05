@@ -29,8 +29,6 @@ package com.sucy.skill.api.particle.target;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
-import java.util.Objects;
-
 /**
  * Causes an effect to follow the target entity
  */
@@ -61,7 +59,7 @@ public class EntityTarget implements EffectTarget
     }
 
     /**
-     * @return tue if target is still valid, false otherwise
+     * @return true if target is still valid, false otherwise
      */
     public boolean isValid()
     {
@@ -70,13 +68,17 @@ public class EntityTarget implements EffectTarget
 
     @Override
     public int hashCode() {
-        return entity.getUniqueId().hashCode();
+        return entity.hashCode();
     }
 
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof EntityTarget)) return false;
         final EntityTarget target = (EntityTarget)o;
-        return target.entity.getUniqueId().equals(entity.getUniqueId());
+        if (target.entity == null) {
+            return entity == null;
+        } else {
+            return entity != null && target.entity.equals(entity);
+        }
     }
 }
