@@ -92,6 +92,14 @@ public class PlayerEquips
         return offhand >= 0 && other[offhand].isMet();
     }
 
+    private void checkMainHand(PlayerInventory inv, int[] unMeets) {
+        ItemStack stack = inv.getItemInMainHand();
+        if (stack == null || stack.getType() == Material.AIR) {
+            inv.setItemInMainHand(TEMP);
+            unMeets[++unMeets[0]] = inv.getHeldItemSlot();
+        }
+    }
+
     /**
      * Updates all available items for the player
      *
@@ -100,8 +108,10 @@ public class PlayerEquips
     public void update(Player player)
     {
         PlayerInventory inv = player.getInventory();
-        int[] unMeets = new int[other.length + 2];
+        int[] unMeets = new int[other.length + 3];
         unMeets[0] = 0;
+
+        checkMainHand(inv, unMeets);
 
         weapon = swap(inv, inv.getHeldItemSlot(), weapon, true, unMeets);
         for (int i = 0; i < other.length; i++)
@@ -181,11 +191,15 @@ public class PlayerEquips
      */
     public void updateWeapon(PlayerInventory inv)
     {
-        int[] ints = new int[]{0, 0, 0};
+        int[] ints = new int[]{0, 0, 0, 0};
+
+        checkMainHand(inv, ints);
+
         weapon = swap(inv, inv.getHeldItemSlot(), weapon, true, ints);
         if (VersionManager.isVersionAtLeast(VersionManager.V1_9_0) && offhand >= 0) {
             other[offhand] = swap(inv, 40, other[offhand], true, ints);
         }
+
         postSwap(inv, ints);
     }
 
