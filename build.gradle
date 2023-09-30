@@ -8,17 +8,22 @@ plugins {
     id 'java'
 }
 
-version = '1.109'
+version = '1.110'
 archivesBaseName = "SkillAPI-Pro"
 
 java.targetCompatibility(JavaVersion.VERSION_1_8)
 
 repositories {
     mavenCentral()
+    mavenLocal()
+    maven {
+        name = 'Spigot'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
 }
 
 dependencies {
-    implementation files(
+    var collections = files(
             'modules/BungeeCord.jar',
             'modules/craftbukkit-1.13.jar',
             'modules/LibsDisguises.jar',
@@ -34,10 +39,18 @@ dependencies {
             'modules/Vault.jar',
             'modules/WorldEdit.jar',
             'modules/WorldGuard.jar',
-            'modules/SecondSkillBar-1.2.6-12-a8.jar'
+//            'modules/SecondSkillBar-1.2.6-12-a8.jar',
     )
 
+    compileOnly collections
+    testCompileOnly collections
+
     testCompileOnly 'junit:junit:4.12'
+
+    runtimeOnly (
+            'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT',
+//            'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT',
+    )
 }
 
 processResources {
@@ -52,4 +65,24 @@ jar {
 //    archiveClassifier.set("trace")
     from 'modules/SkillAPIModule.jar'
     from 'modules/SkillAPIPlaceholders.jar'
+}
+
+tasks.register 'runServer', JavaExec, {
+
+    workingDir = './run'
+
+    classpath = files(sourceSets.main.runtimeClasspath).filter {
+        it.name.endsWith '.jar'
+    }
+
+    doFirst {
+        var f = file('./run')
+        if (!f.exists())
+            f.mkdir()
+    }
+
+    standardInput System.in
+//    standardOutput System.out
+
+//    commandLine 'cmd', '/c', 'java', '-cp', sourceSets.main.runtimeClasspath.join(';'), 'org.bukkit.craftbukkit.Main'
 }

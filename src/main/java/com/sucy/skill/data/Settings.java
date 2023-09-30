@@ -113,6 +113,7 @@ public class Settings {
         loadSaveSettings();
         loadTargetingSettings();
         loadWorldGuardSettings();
+        loadStatsSettings();
     }
 
     ///////////////////////////////////////////////////////
@@ -1637,4 +1638,60 @@ public class Settings {
         skillDisabledRegions = ImmutableSet.copyOf(data.getList(WG_SKILLS));
         expDisabledRegions = ImmutableSet.copyOf(data.getList(WG_EXP));
     }
+
+    ///////////////////////////////////////////////////////
+    //                                                   //
+    //               StatsBoard Settings                 //
+    //                                                   //
+    ///////////////////////////////////////////////////////
+
+    private static final String STATS_BASE = "Stats.";
+    private static final String STATS_SHOW_HEALTH = STATS_BASE + "show-health";
+    private static final String STATS_SHOW_MANA = STATS_BASE + "show-mana";
+    private static final String STATS_SHOW_POINTS = STATS_BASE + "show-points";
+    private static final String STATS_SHOW_LEVEL = STATS_BASE + "show-level";
+    private static final String STATS_SHOW_EXP = STATS_BASE + "show-exp";
+    private static final String STATS_SHOW_EXP_LEFT = STATS_BASE + "show-exp-left";
+    private static final String STATS_SHOW_ATTRIB = STATS_BASE + "show-attrib";
+
+    private boolean statsShowHealth = true;
+    private boolean statsShowMana = true;
+    private boolean statsShowPoints = true;
+    private boolean statsShowLevel = true;
+    private boolean statsShowExp = true;
+    private boolean statsShowExpLeft = true;
+    private boolean statsShowAttrib = true;
+
+    public boolean isStatsShowHealth() {
+        return statsShowHealth;
+    }
+    public boolean isStatsShowMana() {
+        return statsShowMana;
+    }
+    public boolean isStatsShowPoints() {
+        return statsShowPoints;
+    }
+    public boolean isStatsShowLevel() {
+        return statsShowLevel;
+    }
+    public boolean isStatsShowExp() {
+        return statsShowExp;
+    }
+    public boolean isStatsShowExpLeft() {
+        return statsShowExpLeft;
+    }
+    public boolean isStatsShowAttrib() {
+        return statsShowAttrib;
+    }
+
+    private void loadStatsSettings() {
+        statsShowHealth = config.getBoolean(STATS_SHOW_HEALTH);
+        statsShowMana = config.getBoolean(STATS_SHOW_MANA);
+        statsShowPoints = config.getBoolean(STATS_SHOW_POINTS);
+        statsShowLevel = config.getBoolean(STATS_SHOW_LEVEL);
+        statsShowExp = config.getBoolean(STATS_SHOW_EXP);
+        statsShowExpLeft = config.getBoolean(STATS_SHOW_EXP_LEFT);
+        statsShowAttrib = config.getBoolean(STATS_SHOW_ATTRIB);
+    }
+
 }

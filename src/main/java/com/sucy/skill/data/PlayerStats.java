@@ -59,16 +59,22 @@ public class PlayerStats implements StatHolder
     public List<String> getNames()
     {
         List<String> stats = new ArrayList<String>();
-        stats.add(statMap.get(HEALTH));
-        if (SkillAPI.getSettings().isManaEnabled())
+        Settings settings = SkillAPI.getSettings();
+
+        if (settings.isStatsShowHealth())
+            stats.add(statMap.get(HEALTH));
+        if (settings.isManaEnabled() && settings.isStatsShowMana())
             stats.add(player.getData().getManaName());
-        stats.add(statMap.get(POINTS));
-        stats.add(statMap.get(LEVEL));
-        stats.add(statMap.get(EXP));
-        if (SkillAPI.getSettings().isAttributesEnabled())
-        {
+        if (settings.isStatsShowPoints())
+            stats.add(statMap.get(POINTS));
+        if (settings.isStatsShowLevel())
+            stats.add(statMap.get(LEVEL));
+        if (settings.isStatsShowExp())
+            stats.add(statMap.get(EXP));
+        if (settings.isStatsShowExpLeft())
+            stats.add(statMap.get(EXP_LEFT));
+        if (settings.isAttributesEnabled() && settings.isStatsShowAttrib())
             stats.add(statMap.get(ATTRIB));
-        }
 
         return stats;
     }
@@ -80,24 +86,33 @@ public class PlayerStats implements StatHolder
     public ArrayList<Integer> getValues()
     {
         ArrayList<Integer> values = new ArrayList<Integer>();
-        values.add((int) Math.ceil(player.getPlayerData().getPlayer().getHealth()));
-        if (SkillAPI.getSettings().isManaEnabled())
+
+        Settings settings = SkillAPI.getSettings();
+        if (settings.isStatsShowHealth())
+            values.add((int) Math.ceil(player.getPlayerData().getPlayer().getHealth()));
+        if (settings.isManaEnabled() && settings.isStatsShowMana())
             values.add((int) player.getPlayerData().getMana());
-        values.add(player.getPoints());
-        values.add(player.getLevel());
-        values.add((int) player.getExp());
-        if (SkillAPI.getSettings().isAttributesEnabled())
+        if (settings.isStatsShowPoints())
+            values.add(player.getPoints());
+        if (settings.isStatsShowLevel())
+            values.add(player.getLevel());
+        if (settings.isStatsShowExp())
+            values.add((int) player.getExp());
+        if (settings.isStatsShowExpLeft())
+            values.add(player.getRequiredExp() - (int) player.getExp());
+        if (settings.isAttributesEnabled() && settings.isStatsShowAttrib())
             values.add(player.getPlayerData().getAttributePoints());
 
         return values;
     }
 
-    private static final String BASE   = "Stats.";
-    private static final String EXP    = "exp";
-    private static final String HEALTH = "health";
-    private static final String LEVEL  = "level";
-    private static final String POINTS = "points";
-    private static final String ATTRIB = "attrib";
+    private static final String BASE        = "Stats.";
+    private static final String EXP         = "exp";
+    private static final String EXP_LEFT    = "exp-left";
+    private static final String HEALTH      = "health";
+    private static final String LEVEL       = "level";
+    private static final String POINTS      = "points";
+    private static final String ATTRIB      = "attrib";
 
     private static final HashMap<String, String> statMap = new HashMap<String, String>();
 
@@ -110,6 +125,7 @@ public class PlayerStats implements StatHolder
         if (statMap.size() == 0)
         {
             load(EXP, BASE + EXP);
+            load(EXP_LEFT, BASE + EXP_LEFT);
             load(HEALTH, BASE + HEALTH);
             load(LEVEL, BASE + LEVEL);
             load(POINTS, BASE + POINTS);

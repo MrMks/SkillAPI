@@ -378,9 +378,6 @@ Casting:
     data: 0
     durability: 0
     name: '&6Instant Bar'
-    data: 0
-    durability: 0
-    name: '&6Instant Bar'
     lore:
     - ''
     - 'Skills in this row will'
@@ -590,3 +587,12 @@ Worlds:
   # The worlds to include in the enable/disable list
   worlds:
   - world
+#
+Stats:
+  show-health: true
+  show-mana: true
+  show-points: true
+  show-level: true
+  show-exp: true
+  show-exp-left: true
+  show-attrib: true

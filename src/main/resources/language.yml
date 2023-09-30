@@ -50,6 +50,7 @@ Stats:
   points: '&2SP'
   level: '&2Level'
   exp: '&2Exp'
+  exp-left: '&2ExpLeft'
   attrib: '&2AP'
 Status:
   silenced: '&4You are silenced for another &6{duration} &4seconds'
